@@ -1,118 +1,98 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>העולם שלנו - המאגר המלא 195 מדינות</title>
+    <title>העולם שלנו - Our World</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; transition: all 0.3s; }
         .country-card { transition: all 0.2s; cursor: pointer; border: 2px solid #e2e8f0; background: white; }
         .country-card:hover { transform: scale(1.02); border-color: #3b82f6; background-color: #eff6ff; }
-        .active-btn { background-color: #1e40af !important; color: white !important; border-color: #1e40af !important; }
+        .active-btn { background-color: #1e40af !important; color: white !important; }
         .owner-banner { background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
         #quiz-overlay, #quiz-type-overlay, #custom-alert-overlay { background: rgba(0,0,0,0.85); display: none; }
         .grid-container { max-height: 450px; overflow-y: auto; padding-right: 5px; }
-        .grid-container::-webkit-scrollbar { width: 6px; }
-        .grid-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        .btn-map-country {
-            @apply inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm shadow-sm transition-all mr-4;
-            background-color: #e0e7ff; color: #1e40af;
-        }
-        .btn-map-capital {
-            @apply inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm shadow-sm transition-all mr-4;
-            background-color: #fef3c7; color: #92400e;
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     </style>
 </head>
 <body class="p-2 md:p-6 min-h-screen font-bold text-slate-800">
 
+    <button onclick="toggleLanguage()" class="fixed top-4 left-4 z-[110] bg-white border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+        🌐 <span id="lang-toggle-text">English</span>
+    </button>
+
     <div id="custom-alert-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center space-y-4 border-4 border-blue-600 animate-pop relative">
-            <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 w-24 h-24 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-5xl">
-                👨‍🏫
-            </div>
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 w-24 h-24 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-5xl">👨‍🏫</div>
             <div class="pt-8">
-                <h3 class="text-2xl font-black text-blue-900 mb-2">שלומי אומר:</h3>
+                <h3 id="alert-title" class="text-2xl font-black text-blue-900 mb-2"></h3>
                 <div class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-100 italic text-blue-800 text-lg">
                     "<span id="custom-alert-message"></span>"
                 </div>
             </div>
-            <button onclick="closeCustomAlert()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-blue-700 transition-all active:scale-95">אישור</button>
+            <button onclick="closeCustomAlert()" id="alert-btn-text" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-blue-700 active:scale-95 transition-all"></button>
         </div>
     </div>
 
     <div id="quiz-type-overlay" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center space-y-6 border-4 border-blue-500">
-            <h2 class="text-2xl font-bold text-blue-900">איזה מבחן תרצו לעשות?</h2>
+            <h2 id="quiz-select-title" class="text-2xl font-bold text-blue-900"></h2>
             <div class="grid gap-4">
-                <button onclick="startSpecificQuiz('capital')" class="bg-blue-600 text-white py-4 rounded-xl shadow-lg hover:bg-blue-700 text-xl transition-colors">בחינה על ערי בירה 🏙️</button>
-                <button onclick="startSpecificQuiz('country')" class="bg-amber-500 text-white py-4 rounded-xl shadow-lg hover:bg-amber-600 text-xl transition-colors">בחינה על מדינות 🌍</button>
+                <button onclick="startSpecificQuiz('capital')" id="btn-quiz-cap" class="bg-blue-600 text-white py-4 rounded-xl shadow-lg text-xl"></button>
+                <button onclick="startSpecificQuiz('country')" id="btn-quiz-count" class="bg-amber-500 text-white py-4 rounded-xl shadow-lg text-xl"></button>
             </div>
-            <button onclick="closeTypeOverlay()" class="text-gray-400 text-sm underline">ביטול וחזרה</button>
+            <button onclick="closeTypeOverlay()" id="btn-quiz-cancel" class="text-gray-500 text-lg font-black underline decoration-2 py-2 mt-4 hover:text-red-500"></button>
         </div>
     </div>
 
     <div id="quiz-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl text-center space-y-4 border-4 border-blue-100">
             <div class="grid grid-cols-4 gap-1 mb-2">
-                <div class="bg-blue-50 border-blue-200 text-blue-700 p-2 rounded-xl border-2"><div class="text-[10px]">בוצעו</div><div id="count-total" class="text-lg font-black">0</div></div>
-                <div class="bg-green-50 border-green-200 text-green-700 p-2 rounded-xl border-2"><div class="text-[10px]">הצלחות</div><div id="count-success" class="text-lg font-black">0</div></div>
-                <div class="bg-red-50 border-red-200 text-red-700 p-2 rounded-xl border-2"><div class="text-[10px]">פספוסים</div><div id="count-fail" class="text-lg font-black">0</div></div>
-                <div class="bg-slate-50 border-slate-200 text-slate-700 p-2 rounded-xl border-2"><div class="text-[10px]">זמן</div><div id="quiz-timer" class="text-lg font-black">00:00</div></div>
+                <div class="bg-blue-50 p-2 rounded-xl border-2"><div id="stat-total" class="text-[10px]"></div><div id="count-total" class="text-lg font-black">0</div></div>
+                <div class="bg-green-50 p-2 rounded-xl border-2"><div id="stat-success" class="text-[10px]"></div><div id="count-success" class="text-lg font-black">0</div></div>
+                <div class="bg-red-50 p-2 rounded-xl border-2"><div id="stat-fail" class="text-[10px]"></div><div id="count-fail" class="text-lg font-black">0</div></div>
+                <div class="bg-slate-50 p-2 rounded-xl border-2"><div id="stat-time" class="text-[10px]"></div><div id="quiz-timer" class="text-lg font-black">00:00</div></div>
             </div>
             <div class="bg-amber-50 text-amber-700 py-1 px-4 rounded-full text-sm inline-block border border-amber-200">
-                🏆 שיא שלכם: <span id="high-score-display">0</span> הצלחות
+                🏆 <span id="best-score-text"></span>: <span id="high-score-display">0</span>
             </div>
-            <h2 id="quiz-question" class="text-2xl font-bold text-blue-900 leading-tight"></h2>
-            <input type="text" id="quiz-input" class="w-full border-2 border-blue-200 rounded-xl p-4 text-center text-2xl text-blue-900 focus:border-blue-500 outline-none shadow-inner" placeholder="הקלידו את התשובה שלכם...">
+            <h2 id="quiz-question" class="text-2xl font-bold text-blue-900 min-h-[3rem]"></h2>
+            <input type="text" id="quiz-input" class="w-full border-2 border-blue-200 rounded-xl p-4 text-center text-2xl outline-none shadow-inner">
             <div class="flex gap-2">
-                <button onclick="checkAnswer()" class="flex-1 bg-green-500 text-white py-4 rounded-xl shadow-lg hover:bg-green-600 transition-colors">בדיקה</button>
-                <button onclick="giveHint()" class="flex-1 bg-amber-400 text-white py-4 rounded-xl shadow-lg hover:bg-amber-500 transition-colors">רמז 💡</button>
+                <button onclick="checkAnswer()" id="btn-check" class="flex-1 bg-green-500 text-white py-4 rounded-xl shadow-lg"></button>
+                <button onclick="giveHint()" id="btn-hint" class="flex-1 bg-amber-400 text-white py-4 rounded-xl shadow-lg"></button>
             </div>
-            <div class="flex flex-col gap-2 pt-2">
-                <button onclick="closeQuiz()" class="text-gray-400 text-sm underline font-bold">סיום המבחן וחזרה ללימוד</button>
-                <button onclick="resetHighScore()" class="text-red-300 text-[10px] hover:text-red-500 transition-colors">איפוס שיא אישי</button>
+            <div class="pt-4 mt-2 border-t border-gray-100">
+                <button onclick="closeQuiz()" id="btn-end" class="text-gray-700 text-lg font-black underline decoration-2 hover:text-blue-700 py-2 w-full"></button>
+                <button onclick="resetHighScore()" id="btn-reset-score" class="text-red-300 text-[10px] mt-2 block w-full hover:text-red-500"></button>
             </div>
         </div>
     </div>
 
     <div class="max-w-5xl mx-auto space-y-4">
         <div class="owner-banner p-6 rounded-3xl text-white shadow-xl text-center">
-            <h1 class="text-3xl font-black mb-1">העולם שלנו 🌍</h1>
-            <h2 class="text-xl opacity-90 mb-2">לימוד מפת העולם מאת שלומי אמבר</h2>
+            <h1 id="header-main" class="text-3xl font-black mb-1"></h1>
+            <h2 id="header-sub" class="text-xl opacity-90 mb-2"></h2>
         </div>
 
         <div class="bg-white rounded-3xl shadow-xl p-10 text-center border-b-4 border-gray-100">
             <div id="info-display">
-                <div class="flex items-center justify-center flex-wrap gap-2 mb-2">
-                    <h2 id="display-country" class="text-6xl font-black text-blue-900">בחרו מדינה</h2>
-                    <a id="map-link-country" target="_blank" class="btn-map-country hidden"><span>🗺️</span> מפת המדינה</a>
-                </div>
-                <p class="text-gray-400 text-xl font-medium mt-4">עיר הבירה:</p>
-                <div class="flex items-center justify-center flex-wrap gap-2 mb-8">
-                    <p id="display-capital" class="text-5xl font-bold text-blue-600"></p>
-                    <a id="map-link-capital" target="_blank" class="btn-map-capital hidden"><span>🏙️</span> מפת עיר הבירה</a>
-                </div>
-                <button onclick="openTypeOverlay()" class="w-full max-w-md bg-green-500 text-white py-5 rounded-2xl shadow-lg text-2xl hover:bg-green-600 transition-all transform hover:scale-105">🎯 בחנו את עצמכם!</button>
+                <h2 id="display-country" class="text-6xl font-black text-blue-900 mb-4"></h2>
+                <p id="text-cap-label" class="text-gray-400 text-xl font-medium"></p>
+                <p id="display-capital" class="text-5xl font-bold text-blue-600 mb-8"></p>
+                <button onclick="openTypeOverlay()" id="btn-start-test" class="w-full max-w-md bg-green-500 text-white py-5 rounded-2xl shadow-lg text-2xl hover:bg-green-600 transition-all"></button>
             </div>
         </div>
 
-        <div id="main-menu" class="flex flex-wrap justify-center gap-2">
-            <button onclick="handleAllWorldClick()" id="main-all" class="px-4 py-2 rounded-xl font-bold bg-amber-50 text-amber-800 border-2 border-amber-200 shadow-sm transition-all hover:bg-amber-100">🌍 כל העולם (195)</button>
+        <div id="main-menu-container" class="flex flex-wrap justify-center gap-2">
+            <button onclick="handleAllWorldClick()" id="btn-all-world" class="px-4 py-2 rounded-xl font-bold bg-amber-50 text-amber-800 border-2 border-amber-200 shadow-sm transition-all hover:bg-amber-100"></button>
+            <div id="main-menu" class="flex flex-wrap gap-2"></div>
         </div>
-        <div id="sub-menu-container" class="hidden flex flex-wrap justify-center gap-2 p-3 bg-blue-50 rounded-xl border border-blue-100"></div>
-
         <div class="bg-white rounded-2xl p-4 shadow-sm">
-            <div class="flex justify-between items-center mb-4 px-2 border-b pb-2">
-                <h2 id="current-title" class="text-xl font-bold text-gray-700">בחרו קטגוריה</h2>
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h2 id="current-title" class="text-xl font-bold text-gray-700"></h2>
                 <span id="country-count" class="text-sm text-blue-600"></span>
             </div>
             <div id="countries-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 grid-container"></div>
@@ -120,255 +100,231 @@
     </div>
 
     <script>
+        let currentLang = 'he';
+        const translations = {
+            he: {
+                title: "העולם שלנו 🌍", subtitle: "לימוד מפת העולם מאת שלומי אמבר",
+                shlomiSays: "שלומי אומר:", ok: "אישור", selectQuiz: "איזה מבחן תרצו לעשות?",
+                capQuiz: "בחינה על ערי בירה 🏙️", countQuiz: "בחינה על מדינות 🌍", cancel: "ביטול וחזרה",
+                total: "בוצעו", success: "הצלחות", fail: "פספוסים", time: "זמן", best: "שיא",
+                check: "בדיקה", hint: "רמז 💡", end: "סיום וחזרה ללימוד", placeholder: "הקלידו תשובה...",
+                selectCountry: "בחרו מדינה", capLabel: "עיר הבירה:", startTest: "🎯 בחנו את עצמכם!",
+                countries: "מדינות", hintMsg: "הפעם גילינו לכם... נסו לזכור זאת לפעם הבאה! 💪",
+                correctMsg: "כל הכבוד לכם! תשובה נכונה מאוד! 🏆", wrongMsg: "לא בדיוק, נסו שוב בבקשה!",
+                qCap: "מה עיר הבירה של ", qCount: " היא הבירה של איזו מדינה?",
+                allWorld: "🌍 כל העולם (195)", reset: "איפוס שיא אישי", confirmReset: "לאפס שיא?"
+            },
+            en: {
+                title: "Our World 🌍", subtitle: "World Map Learning by Shlomi Ambar",
+                shlomiSays: "Shlomi says:", ok: "OK", selectQuiz: "Which quiz would you like?",
+                capQuiz: "Capitals Quiz 🏙️", countQuiz: "Countries Quiz 🌍", cancel: "Cancel and Return",
+                total: "Total", success: "Success", fail: "Hints", time: "Time", best: "Best",
+                check: "Check", hint: "Hint 💡", end: "End Quiz and Return", placeholder: "Type answer...",
+                selectCountry: "Select Country", capLabel: "Capital City:", startTest: "🎯 Test Yourself!",
+                countries: "countries", hintMsg: "This time we helped you... try to remember! 💪",
+                correctMsg: "Well done! Correct answer! 🏆", wrongMsg: "Not quite, please try again!",
+                qCap: "What is the capital of ", qCount: " is the capital of which country?",
+                allWorld: "🌍 All World (195)", reset: "Reset Best Score", confirmReset: "Reset Score?"
+            }
+        };
+
         const worldData = {
-            "אירופה": { m: [
-                {n: "אוסטריה", c: "וינה"}, {n: "אוקראינה", c: "קייב"}, {n: "אזרבייג'ן", c: "באקו"}, {n: "איטליה", c: "רומא"}, 
-                {n: "איסלנד", c: "רייקיאוויק"}, {n: "אירלנד", c: "דבלין"}, {n: "אלבניה", c: "טירנה"}, {n: "אנדורה", c: "אנדורה לה ולה"}, 
-                {n: "אסטוניה", c: "טאלין"}, {n: "ארמניה", c: "ירוואן"}, {n: "בולגריה", c: "סופיה"}, {n: "בוסניה והרצגובינה", c: "סראייבו"}, 
-                {n: "בלגיה", c: "בריסל"}, {n: "בלארוס", c: "מינסק"}, {n: "בריטניה", c: "לונדון"}, {n: "גאורגיה", c: "טביליסי"}, 
-                {n: "גרמניה", c: "ברלין"}, {n: "דנמרק", c: "קופנהגן"}, {n: "הולנד", c: "אמסטרדם"}, {n: "הונגריה", c: "בודפשט"}, 
-                {n: "ותיקן", c: "ותיקן"}, {n: "יוון", c: "אתונה"}, {n: "לוקסמבורג", c: "לוקסמבורג"}, {n: "לטביה", c: "ריגה"}, 
-                {n: "ליטא", c: "וילנה"}, {n: "ליכטנשטיין", c: "ואדוץ"}, {n: "מולדובה", c: "קישינב"}, {n: "מונטנגרו", c: "פודגוריצה"}, 
-                {n: "מונקו", c: "מונקו"}, {n: "מלטה", c: "ולטה"}, {n: "מקדוניה הצפונית", c: "סקופיה"}, {n: "נורווגיה", c: "אוסלו"}, 
-                {n: "סלובניה", c: "לובליאנה"}, {n: "סלובקיה", c: "ברטיסלבה"}, {n: "סן מרינו", c: "סן מרינו"}, {n: "ספרד", c: "מדריד"}, 
-                {n: "סרביה", c: "בלגרד"}, {n: "פולין", c: "ורשה"}, {n: "פורטוגל", c: "ליסבון"}, {n: "פינלנד", c: "הלסינקי"}, 
-                {n: "צ'כיה", c: "פראג"}, {n: "צרפת", c: "פריז"}, {n: "קוסובו", c: "פרישטינה"}, {n: "קרואטיה", c: "זאגרב"}, 
-                {n: "רומניה", c: "בוקרשט"}, {n: "רוסיה", c: "מוסקבה"}, {n: "שוודיה", c: "סטוקהולם"}, {n: "שווייץ", c: "ברן"}
+            "אירופה": { en: "Europe", m: [
+                {n: "אוסטריה", ne: "Austria", c: "וינה", ce: "Vienna"}, {n: "אוקראינה", ne: "Ukraine", c: "קייב", ce: "Kyiv"}, {n: "אזרבייג'ן", ne: "Azerbaijan", c: "באקו", ce: "Baku"}, {n: "איטליה", ne: "Italy", c: "רומא", ce: "Rome"}, {n: "איסלנד", ne: "Iceland", c: "רייקיאוויק", ce: "Reykjavik"}, {n: "אירלנד", ne: "Ireland", c: "דבלין", ce: "Dublin"}, {n: "אלבניה", ne: "Albania", c: "טירנה", ce: "Tirana"}, {n: "אנדורה", ne: "Andorra", c: "אנדורה לה ולה", ce: "Andorra la Vella"}, {n: "אסטוניה", ne: "Estonia", c: "טאלין", ce: "Tallinn"}, {n: "ארמניה", ne: "Armenia", c: "ירוואן", ce: "Yerevan"}, {n: "בולגריה", ne: "Bulgaria", c: "סופיה", ce: "Sofia"}, {n: "בוסניה והרצגובינה", ne: "Bosnia and Herzegovina", c: "סראייבו", ce: "Sarajevo"}, {n: "בלגיה", ne: "Belgium", c: "בריסל", ce: "Brussels"}, {n: "בלארוס", ne: "Belarus", c: "מינסק", ce: "Minsk"}, {n: "בריטניה", ne: "United Kingdom", c: "לונדון", ce: "London"}, {n: "גאורגיה", ne: "Georgia", c: "טביליסי", ce: "Tbilisi"}, {n: "גרמניה", ne: "Germany", c: "ברלין", ce: "Berlin"}, {n: "דנמרק", ne: "Denmark", c: "קופנהגן", ce: "Copenhagen"}, {n: "הולנד", ne: "Netherlands", c: "אמסטרדם", ce: "Amsterdam"}, {n: "הונגריה", ne: "Hungary", c: "בודפשט", ce: "Budapest"}, {n: "ותיקן", ne: "Vatican City", c: "ותיקן", ce: "Vatican City"}, {n: "יוון", ne: "Greece", c: "אתונה", ce: "Athens"}, {n: "לוקסמבורג", ne: "Luxembourg", c: "לוקסמבורג", ce: "Luxembourg"}, {n: "לטביה", ne: "Latvia", c: "ריגה", ce: "Riga"}, {n: "ליטא", ne: "Lithuania", c: "וילנה", ce: "Vilnius"}, {n: "ליכטנשטיין", ne: "Liechtenstein", c: "ואדוץ", ce: "Vaduz"}, {n: "מולדובה", ne: "Moldova", c: "קישינב", ce: "Chisinau"}, {n: "מונטנגרו", ne: "Montenegro", c: "פודגוריצה", ce: "Podgorica"}, {n: "מונקו", ne: "Monaco", c: "מונקו", ce: "Monaco"}, {n: "מלטה", ne: "Malta", c: "ולטה", ce: "Valletta"}, {n: "מקדוניה הצפונית", ne: "North Macedonia", c: "סקופיה", ce: "Skopje"}, {n: "נורווגיה", ne: "Norway", c: "אוסלו", ce: "Oslo"}, {n: "סלובניה", ne: "Slovenia", c: "לובליאנה", ce: "Ljubljana"}, {n: "סלובקיה", ne: "Slovakia", c: "ברטיסלבה", ce: "Bratislava"}, {n: "סן מרינו", ne: "San Marino", c: "סן מרינו", ce: "San Marino"}, {n: "ספרד", ne: "Spain", c: "מדריד", ce: "Madrid"}, {n: "סרביה", ne: "Serbia", c: "בלגרד", ce: "Belgrade"}, {n: "פולין", ne: "Poland", c: "ורשה", ce: "Warsaw"}, {n: "פורטוגל", ne: "Portugal", c: "ליסבון", ce: "Lisbon"}, {n: "פינלנד", ne: "Finland", c: "הלסינקי", ce: "Helsinki"}, {n: "צ'כיה", ne: "Czech Republic", c: "פראג", ce: "Prague"}, {n: "צרפת", ne: "France", c: "פריז", ce: "Paris"}, {n: "קוסובו", ne: "Kosovo", c: "פרישטינה", ce: "Pristina"}, {n: "קרואטיה", ne: "Croatia", c: "זאגרב", ce: "Zagreb"}, {n: "רומניה", ne: "Romania", c: "בוקרשט", ce: "Bucharest"}, {n: "רוסיה", ne: "Russia", c: "מוסקבה", ce: "Moscow"}, {n: "שוודיה", ne: "Sweden", c: "סטוקהולם", ce: "Stockholm"}, {n: "שווייץ", ne: "Switzerland", c: "ברן", ce: "Bern"}
             ]},
-            "אמריקה": { sub: {
-                "צפון אמריקה": [
-                    {n: "ארה\"ב", c: "וושינגטון"}, {n: "קנדה", c: "אוטווה"}, {n: "מקסיקו", c: "מקסיקו סיטי"}, {n: "גרינלנד", c: "נואוק"}
-                ],
-                "מרכז אמריקה וקריביים": [
-                    {n: "קוסטה ריקה", c: "סן חוסה"}, {n: "פנמה", c: "פנמה סיטי"}, {n: "גואטמלה", c: "גואטמלה סיטי"}, {n: "ניקרגואה", c: "מנגואה"}, 
-                    {n: "הונדורס", c: "טגוסיגלפה"}, {n: "אל סלוודור", c: "סן סלוודור"}, {n: "בליז", c: "בלמופאן"}, {n: "קובה", c: "הוואנה"}, 
-                    {n: "ג'מייקה", c: "קינגסטון"}, {n: "דומיניקנה", c: "סנטו דומינגו"}, {n: "האיטי", c: "פורט-או-פרנס"}, {n: "בהאמה", c: "נסאו"}, 
-                    {n: "ברבדוס", c: "ברידג'טאון"}, {n: "אנטיגואה וברבודה", c: "סנט ג'ונס"}, {n: "גרנדה", c: "סנט ג'ורג'ס"}, {n: "דומיניקה", c: "רוזו"}, 
-                    {n: "סנט וינסנט", c: "קינגסטאון"}, {n: "סנט לוסיה", c: "קסטריז"}, {n: "סנט קיטס ונוויס", c: "באסטר"}, {n: "טרינידד וטובגו", c: "פורט אוף ספיין"}
-                ],
-                "דרום אמריקה": [
-                    {n: "ברזיל", c: "ברזיליה"}, {n: "ארגנטינה", c: "בואנוס איירס"}, {n: "צ'ילה", c: "סנטיאגו"}, {n: "קולומביה", c: "בוגוטה"}, 
-                    {n: "פרו", c: "לימה"}, {n: "אורוגוואי", c: "מונטווידאו"}, {n: "פרגוואי", c: "אסונסיון"}, {n: "אקוודור", c: "קיטו"}, 
-                    {n: "בוליביה", c: "לה פאס"}, {n: "ונצואלה", c: "קראקס"}, {n: "גיאנה", c: "ג'ורג'טאון"}, {n: "סורינאם", c: "פרמריבו"}
-                ]
+            "אסיה": { en: "Asia", m: [
+                {n: "אוזבקיסטן", ne: "Uzbekistan", c: "טשקנט", ce: "Tashkent"}, {n: "אינדונזיה", ne: "Indonesia", c: "ג'קרטה", ce: "Jakarta"}, {n: "אפגניסטן", ne: "Afghanistan", c: "קאבול", ce: "Kabul"}, {n: "בהוטן", ne: "Bhutan", c: "טהימפהו", ce: "Thimphu"}, {n: "בנגלדש", ne: "Bangladesh", c: "דאקה", ce: "Dhaka"}, {n: "ברוניי", ne: "Brunei", c: "בנדר סרי בגוואן", ce: "Bandar Seri Begawan"}, {n: "הודו", ne: "India", c: "ניו דלהי", ce: "New Delhi"}, {n: "המלדיביים", ne: "Maldives", c: "מאלה", ce: "Male"}, {n: "הפיליפינים", ne: "Philippines", c: "מנילה", ce: "Manila"}, {n: "וייטנאם", ne: "Vietnam", c: "האנוי", ce: "Hanoi"}, {n: "טג'יקיסטן", ne: "Tajikistan", c: "דושנבה", ce: "Dushanbe"}, {n: "טאיוואן", ne: "Taiwan", c: "טאיפיי", ce: "Taipei"}, {n: "טורקמניסטן", ne: "Turkmenistan", c: "אשגבאט", ce: "Ashgabat"}, {n: "יפן", ne: "Japan", c: "טוקיו", ce: "Tokyo"}, {n: "לאוס", ne: "Laos", c: "ויינטיאן", ce: "Vientiane"}, {n: "מונגוליה", ne: "Mongolia", c: "אולן בטור", ce: "Ulaanbaatar"}, {n: "מזרח טימור", ne: "East Timor", c: "דילי", ce: "Dili"}, {n: "מיאנמר", ne: "Myanmar", c: "נייפידאו", ce: "Naypyidaw"}, {n: "מלזיה", ne: "Malaysia", c: "קואלה לומפור", ce: "Kuala Lumpur"}, {n: "נפאל", ne: "Nepal", c: "קטמנדו", ce: "Kathmandu"}, {n: "סין", ne: "China", c: "בייג'ינג", ce: "Beijing"}, {n: "סינגפור", ne: "Singapore", c: "סינגפור", ce: "Singapore"}, {n: "סרי לנקה", ne: "Sri Lanka", c: "קולומבו", ce: "Colombo"}, {n: "פקיסטן", ne: "Pakistan", c: "אסלאמאבאד", ce: "Islamabad"}, {n: "קוריאה הדרומית", ne: "South Korea", c: "סיאול", ce: "Seoul"}, {n: "קוריאה הצפונית", ne: "North Korea", c: "פיונגיאנג", ce: "Pyongyang"}, {n: "קזחסטן", ne: "Kazakhstan", c: "אסטנה", ce: "Astana"}, {n: "קירגיזסטן", ne: "Kyrgyzstan", c: "בישקק", ce: "Bishkek"}, {n: "קמבודיה", ne: "Cambodia", c: "פנום פן", ce: "Phnom Penh"}, {n: "תאילנד", ne: "Thailand", c: "בנגקוק", ce: "Bangkok"}
+            ]},
+            "מזרח תיכון": { en: "Middle East", m: [
+                {n: "איחוד האמירויות", ne: "United Arab Emirates", c: "אבו דאבי", ce: "Abu Dhabi"}, {n: "איראן", ne: "Iran", c: "טהראן", ce: "Tehran"}, {n: "בחריין", ne: "Bahrain", c: "מנאמה", ce: "Manama"}, {n: "טורקיה", ne: "Turkey", c: "אנקרה", ce: "Ankara"}, {n: "ירדן", ne: "Jordan", c: "עמאן", ce: "Amman"}, {n: "ישראל", ne: "Israel", c: "ירושלים", ce: "Jerusalem"}, {n: "כווית", ne: "Kuwait", c: "כווית סיטי", ce: "Kuwait City"}, {n: "לבנון", ne: "Lebanon", c: "ביירות", ce: "Beirut"}, {n: "מצרים", ne: "Egypt", c: "קהיר", ce: "Cairo"}, {n: "סוריה", ne: "Syria", c: "דמשק", ce: "Damascus"}, {n: "עומאן", ne: "Oman", c: "מסקט", ce: "Muscat"}, {n: "עיראק", ne: "Iraq", c: "בגדאד", ce: "Baghdad"}, {n: "ערב הסעודית", ne: "Saudi Arabia", c: "ריאד", ce: "Riyadh"}, {n: "קפריסין", ne: "Cyprus", c: "ניקוסיה", ce: "Nicosia"}, {n: "קטאר", ne: "Qatar", c: "דוחה", ce: "Doha"}, {n: "תימן", ne: "Yemen", c: "צנעא", ce: "Sanaa"}
+            ]},
+            "אפריקה": { en: "Africa", m: [
+                {n: "אוגנדה", ne: "Uganda", c: "קמפלה", ce: "Kampala"}, {n: "אלג'יריה", ne: "Algeria", c: "אלג'יר", ce: "Algiers"}, {n: "אנגולה", ne: "Angola", c: "לואנדה", ce: "Luanda"}, {n: "אתיופיה", ne: "Ethiopia", c: "אדיס אבבה", ce: "Addis Ababa"}, {n: "בוטסואנה", ne: "Botswana", c: "גאבורון", ce: "Gaborone"}, {n: "בורונדי", ne: "Burundi", c: "גיטגה", ce: "Gitega"}, {n: "בורקינה פאסו", ne: "Burkina Faso", c: "ואגאדוגו", ce: "Ouagadougou"}, {n: "בנין", ne: "Benin", c: "פורטו נובו", ce: "Porto-Novo"}, {n: "גאבון", ne: "Gabon", c: "ליברוויל", ce: "Libreville"}, {n: "גאנה", ne: "Ghana", c: "אקרה", ce: "Accra"}, {n: "ג'יבוטי", ne: "Djibouti", c: "ג'יבוטי", ce: "Djibouti"}, {n: "גינאה", ne: "Guinea", c: "קונאקרי", ce: "Conakry"}, {n: "דרום אפריקה", ne: "South Africa", c: "פרטוריה", ce: "Pretoria"}, {n: "דרום סודן", ne: "South Sudan", c: "ג'ובה", ce: "Juba"}, {n: "זימבבואה", ne: "Zimbabwe", c: "הארארה", ce: "Harare"}, {n: "זמביה", ne: "Zambia", c: "לוסקה", ce: "Lusaka"}, {n: "חוף השנהב", ne: "Ivory Coast", c: "יאמוסוקרו", ce: "Yamoussoukro"}, {n: "טנזניה", ne: "Tanzania", c: "דודומה", ce: "Dodoma"}, {n: "לוב", ne: "Libya", c: "טריפולי", ce: "Tripoli"}, {n: "ליבריה", ne: "Liberia", c: "מונרוביה", ce: "Monrovia"}, {n: "מאוריטניה", ne: "Mauritania", c: "נואקשוט", ce: "Nouakchott"}, {n: "מאוריציוס", ne: "Mauritius", c: "פורט לואי", ce: "Port Louis"}, {n: "מאלי", ne: "Mali", c: "במקו", ce: "Bamako"}, {n: "מדגסקר", ne: "Madagascar", c: "אנטננריבו", ce: "Antananarivo"}, {n: "מוזמביק", ne: "Mozambique", c: "מפוטו", ce: "Maputo"}, {n: "מרוקו", ne: "Morocco", c: "רבאט", ce: "Rabat"}, {n: "ניגריה", ne: "Nigeria", c: "אבוג'ה", ce: "Abuja"}, {n: "ניז'ר", ne: "Niger", c: "ניאמיי", ce: "Niamey"}, {n: "נמיביה", ne: "Namibia", c: "וינדהוק", ce: "Windhoek"}, {n: "סודן", ne: "Sudan", c: "ח'רטום", ce: "Khartoum"}, {n: "סומליה", ne: "Somalia", c: "מוגדישו", ce: "Mogadishu"}, {n: "סיירה לאון", ne: "Sierra Leone", c: "פריטאון", ce: "Freetown"}, {n: "סיישל", ne: "Seychelles", c: "ויקטוריה", ce: "Victoria"}, {n: "סנגל", ne: "Senegal", c: "דקאר", ce: "Dakar"}, {n: "צ'אד", ne: "Chad", c: "נג'מנה", ce: "N'Djamena"}, {n: "קמרון", ne: "Cameroon", c: "יאונדה", ce: "Yaounde"}, {n: "קניה", ne: "Kenya", c: "ניירובי", ce: "Nairobi"}, {n: "רואנדה", ne: "Rwanda", c: "קיגאלי", ce: "Kigali"}, {n: "תוניסיה", ne: "Tunisia", c: "תוניס", ce: "Tunis"}, {n: "אריתריאה", ne: "Eritrea", c: "אסמרה", ce: "Asmara"}, {n: "גמביה", ne: "Gambia", c: "בנג'ול", ce: "Banjul"}, {n: "גינאה ביסאו", ne: "Guinea-Bissau", c: "ביסאו", ce: "Bissau"}, {n: "גינאה המשוונית", ne: "Equatorial Guinea", c: "מלאבו", ce: "Malabo"}, {n: "קונגו (דמוקרטית)", ne: "DR Congo", c: "קינשאסה", ce: "Kinshasa"}, {n: "הרפובליקה המרכז אפריקאית", ne: "Central African Republic", c: "בנגי", ce: "Bangui"}, {n: "לסוטו", ne: "Lesotho", c: "מסרו", ce: "Maseru"}, {n: "מלאווי", ne: "Malawi", c: "לילונגווה", ce: "Lilongwe"}, {n: "סאו טומה ופרינסיפה", ne: "Sao Tome and Principe", c: "סאו טומה", ce: "Sao Tome"}, {n: "סווזילנד (אסוואטיני)", ne: "Eswatini", c: "מבבנה", ce: "Mbabane"}, {n: "קומורו", ne: "Comoros", c: "מורוני", ce: "Moroni"}, {n: "קונגו", ne: "Republic of Congo", c: "ברזוויל", ce: "Brazzaville"}, {n: "כף ורדה", ne: "Cape Verde", c: "פראיה", ce: "Praia"}
+            ]},
+            "אמריקה": { en: "Americas", sub: {
+                "צפון אמריקה": { en: "North America", m: [
+                    {n: "ארה\"ב", ne: "USA", c: "וושינגטון", ce: "Washington D.C."}, {n: "קנדה", ne: "Canada", c: "אוטווה", ce: "Ottawa"}, {n: "מקסיקו", ne: "Mexico", c: "מקסיקו סיטי", ce: "Mexico City"}, {n: "גרינלנד", ne: "Greenland", c: "נואוק", ce: "Nuuk"}
+                ]},
+                "מרכז אמריקה וקריביים": { en: "Central Am. & Caribbean", m: [
+                    {n: "קוסטה ריקה", ne: "Costa Rica", c: "סן חוסה", ce: "San Jose"}, {n: "פנמה", ne: "Panama", c: "פנמה סיטי", ce: "Panama City"}, {n: "גואטמלה", ne: "Guatemala", c: "גואטמלה סיטי", ce: "Guatemala City"}, {n: "ניקרגואה", ne: "Nicaragua", c: "מנגואה", ce: "Managua"}, {n: "הונדורס", ne: "Honduras", c: "טגוסיגלפה", ce: "Tegucigalpa"}, {n: "אל סלוודור", ne: "El Salvador", c: "סן סלוודור", ce: "San Salvador"}, {n: "בליז", ne: "Belize", c: "בלמופאן", ce: "Belmopan"}, {n: "קובה", ne: "Cuba", c: "הוואנה", ce: "Havana"}, {n: "ג'מייקה", ne: "Jamaica", c: "קינגסטון", ce: "Kingston"}, {n: "דומיניקנה", ne: "Dominican Republic", c: "סנטו דומינגו", ce: "Santo Domingo"}, {n: "האיטי", ne: "Haiti", c: "פורט-או-פרנס", ce: "Port-au-Prince"}, {n: "בהאמה", ne: "Bahamas", c: "נסאו", ce: "Nassau"}, {n: "ברבדוס", ne: "Barbados", c: "ברידג'טאון", ce: "Bridgetown"}, {n: "אנטיגואה וברבודה", ne: "Antigua and Barbuda", c: "סנט ג'ונס", ce: "St. John's"}, {n: "גרנדה", ne: "Grenada", c: "סנט ג'ורג'ס", ce: "St. George's"}, {n: "דומיניקה", ne: "Dominica", c: "רוזו", ce: "Roseau"}, {n: "סנט וינסנט", ne: "St. Vincent & Grenadines", c: "קינגסטאון", ce: "Kingstown"}, {n: "סנט לוסיה", ne: "St. Lucia", c: "קסטריז", ce: "Castries"}, {n: "סנט קיטס ונוויס", ne: "St. Kitts and Nevis", c: "באסטר", ce: "Basseterre"}, {n: "טרינידד וטובגו", ne: "Trinidad and Tobago", c: "פורט אוף ספיין", ce: "Port of Spain"}
+                ]},
+                "דרום אמריקה": { en: "South America", m: [
+                    {n: "ברזיל", ne: "Brazil", c: "ברזיליה", ce: "Brasilia"}, {n: "ארגנטינה", ne: "Argentina", c: "בואנוס איירס", ce: "Buenos Aires"}, {n: "צ'ילה", ne: "Chile", c: "סנטיאגו", ce: "Santiago"}, {n: "קולומביה", ne: "Colombia", c: "בוגוטה", ce: "Bogota"}, {n: "פרו", ne: "Peru", c: "לימה", ce: "Lima"}, {n: "אורוגוואי", ne: "Uruguay", c: "מונטווידאו", ce: "Montevideo"}, {n: "פרגוואי", ne: "Paraguay", c: "אסונסיון", ce: "Asuncion"}, {n: "אקוודור", ne: "Ecuador", c: "קיטו", ce: "Quito"}, {n: "בוליביה", ne: "Bolivia", c: "לה פאס", ce: "La Paz"}, {n: "ונצואלה", ne: "Venezuela", c: "קראקס", ce: "Caracas"}, {n: "גיאנה", ne: "Guyana", c: "ג'ורג'טאון", ce: "Georgetown"}, {n: "סורינאם", ne: "Suriname", c: "פרמריבו", ce: "Paramaribo"}
+                ]}
             }},
-            "אסיה": { m: [
-                {n: "אוזבקיסטן", c: "טשקנט"}, {n: "אינדונזיה", c: "ג'קרטה"}, {n: "אפגניסטן", c: "קאבול"}, {n: "בהוטן", c: "טהימפהו"}, 
-                {n: "בנגלדש", c: "דאקה"}, {n: "ברוניי", c: "בנדר סרי בגוואן"}, {n: "הודו", c: "ניו דלהי"}, {n: "המלדיביים", c: "מאלה"}, 
-                {n: "הפיליפינים", c: "מנילה"}, {n: "וייטנאם", c: "האנוי"}, {n: "טג'יקיסטן", c: "דושנבה"}, {n: "טאיוואן", c: "טאיפיי"}, 
-                {n: "טורקמניסטן", c: "אשגבאט"}, {n: "יפן", c: "טוקיו"}, {n: "לאוס", c: "ויינטיאן"}, {n: "מונגוליה", c: "אולן בטור"}, 
-                {n: "מזרח טימור", c: "דילי"}, {n: "מיאנמר", c: "נייפידאו"}, {n: "מלזיה", c: "קואלה לומפור"}, {n: "נפאל", c: "קטמנדו"}, 
-                {n: "סין", c: "בייג'ינג"}, {n: "סינגפור", c: "סינגפור"}, {n: "סרי לנקה", c: "קולומבו"}, {n: "פקיסטן", c: "אסלאמאבאד"}, 
-                {n: "קוריאה הדרומית", c: "סיאול"}, {n: "קוריאה הצפונית", c: "פיונגיאנג"}, {n: "קזחסטן", c: "אסטנה"}, {n: "קירגיזסטן", c: "בישקק"}, 
-                {n: "קמבודיה", c: "פנום פן"}, {n: "תאילנד", c: "בנגקוק"}
-            ]},
-            "מזרח תיכון": { m: [
-                {n: "איחוד האמירויות", c: "אבו דאבי"}, {n: "איראן", c: "טהראן"}, {n: "בחריין", c: "מנאמה"}, {n: "טורקיה", c: "אנקרה"}, 
-                {n: "ירדן", c: "עמאן"}, {n: "ישראל", c: "ירושלים"}, {n: "כווית", c: "כווית סיטי"}, {n: "לבנון", c: "ביירות"}, 
-                {n: "מצרים", c: "קהיר"}, {n: "סוריה", c: "דמשק"}, {n: "עומאן", c: "מסקט"}, {n: "עיראק", c: "בגדאד"}, 
-                {n: "ערב הסעודית", c: "ריאד"}, {n: "קפריסין", c: "ניקוסיה"}, {n: "קטאר", c: "דוחה"}, {n: "תימן", c: "צנעא"}
-            ]},
-            "אפריקה": { m: [
-                {n: "אוגנדה", c: "קמפלה"}, {n: "אלג'יריה", c: "אלג'יר"}, {n: "אנגולה", c: "לואנדה"}, {n: "אתיופיה", c: "אדיס אבבה"}, 
-                {n: "בוטסואנה", c: "גאבורון"}, {n: "בורונדי", c: "גיטגה"}, {n: "בורקינה פאסו", c: "ואגאדוגו"}, {n: "בנין", c: "פורטו נובו"}, 
-                {n: "גאבון", c: "ליברוויל"}, {n: "גאנה", c: "אקרה"}, {n: "ג'יבוטי", c: "ג'יבוטי"}, {n: "גינאה", c: "קונאקרי"}, 
-                {n: "דרום אפריקה", c: "פרטוריה"}, {n: "דרום סודן", c: "ג'ובה"}, {n: "זימבבואה", c: "הארארה"}, {n: "זמביה", c: "לוסקה"}, 
-                {n: "חוף השנהב", c: "יאמוסוקרו"}, {n: "טנזניה", c: "דודומה"}, {n: "לוב", c: "טריפולי"}, {n: "ליבריה", c: "מונרוביה"}, 
-                {n: "מאוריטניה", c: "נואקשוט"}, {n: "מאוריציוס", c: "פורט לואי"}, {n: "מאלי", c: "במקו"}, {n: "מדגסקר", c: "אנטננריבו"}, 
-                {n: "מוזמביק", c: "מפוטו"}, {n: "מרוקו", c: "רבאט"}, {n: "ניגריה", c: "אבוג'ה"}, {n: "ניז'ר", c: "ניאמיי"}, 
-                {n: "נמיביה", c: "וינדהוק"}, {n: "סודן", c: "ח'רטום"}, {n: "סומליה", c: "מוגדישו"}, {n: "סיירה לאון", c: "פריטאון"}, 
-                {n: "סיישל", c: "ויקטוריה"}, {n: "סנגל", c: "דקאר"}, {n: "צ'אד", c: "נג'מנה"}, {n: "קמרון", c: "יאונדה"}, 
-                {n: "קניה", c: "ניירובי"}, {n: "רואנדה", c: "קיגאלי"}, {n: "תוניסיה", c: "תוניס"}, {n: "אריתריאה", c: "אסמרה"},
-                {n: "גמביה", c: "בנג'ול"}, {n: "גינאה ביסאו", c: "ביסאו"}, {n: "גינאה המשוונית", c: "מלאבו"}, {n: "דנ\"ק", c: "קינשאסה"},
-                {n: "הרפובליקה המרכז אפריקאית", c: "בנגי"}, {n: "לסוטו", c: "מסרו"}, {n: "מלאווי", c: "לילונגווה"}, {n: "סאו טומה ופרינסיפה", c: "סאו טומה"},
-                {n: "סווזילנד", c: "מבבנה"}, {n: "קומורו", c: "מורוני"}, {n: "קונגו", c: "ברזוויל"}, {n: "כף ורדה", c: "פראיה"}
-            ]},
-            "אוקיאניה": { m: [
-                {n: "אוסטרליה", c: "קנברה"}, {n: "איי מרשל", c: "מג'ורו"}, {n: "איי שלמה", c: "הוניארה"}, {n: "ונואטו", c: "פורט וילה"}, 
-                {n: "טונגה", c: "נוקואלופה"}, {n: "טובאלו", c: "פונאפוטי"}, {n: "מיקרונזיה", c: "פליקיר"}, {n: "נאורו", c: "יארן"}, 
-                {n: "ניו זילנד", c: "ולינגטון"}, {n: "סמואה", c: "אפיה"}, {n: "פיג'י", c: "סובה"}, {n: "פלאו", c: "נגרולמוד"}, 
-                {n: "פפואה גינאה החדשה", c: "פורט מורסבי"}, {n: "קיריבטי", c: "טראווה"}
+            "אוקיאניה": { en: "Oceania", m: [
+                {n: "אוסטרליה", ne: "Australia", c: "קנברה", ce: "Canberra"}, {n: "איי מרשל", ne: "Marshall Islands", c: "מג'ורו", ce: "Majuro"}, {n: "איי שלמה", ne: "Solomon Islands", c: "הוניארה", ce: "Honiara"}, {n: "ונואטו", ne: "Vanuatu", c: "פורט וילה", ce: "Port Vila"}, {n: "טונגה", ne: "Tonga", c: "נוקואלופה", ce: "Nuku'alofa"}, {n: "טובאלו", ne: "Tuvalu", c: "פונאפוטי", ce: "Funafuti"}, {n: "מיקרונזיה", ne: "Micronesia", c: "פליקיר", ce: "Palikir"}, {n: "נאורו", ne: "Nauru", c: "יארן", ce: "Yaren"}, {n: "ניו זילנד", ne: "New Zealand", c: "ולינגטון", ce: "Wellington"}, {n: "סמואה", ne: "Samoa", c: "אפיה", ce: "Apia"}, {n: "פיג'י", ne: "Fiji", c: "סובה", ce: "Suva"}, {n: "פלאו", ne: "Palau", c: "נגרולמוד", ce: "Ngerulmud"}, {n: "פפואה גינאה החדשה", ne: "Papua New Guinea", c: "פורט מורסבי", ce: "Port Moresby"}, {n: "קיריבטי", ne: "Kiribati", c: "טראווה", ce: "Tarawa"}
             ]}
         };
 
         let currentActiveList = [], currentQuizAnswer = "", hintCount = 0, currentQuizType = "", stats = { total: 0, success: 0, fail: 0 };
-        let audioCtx = null, timerInterval = null, startTime = null;
+        let timerInterval = null, startTime = null, audioCtx = null;
 
         function init() {
+            updateUI();
             const mainMenu = document.getElementById('main-menu');
+            mainMenu.innerHTML = '';
             Object.keys(worldData).forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = "px-4 py-2 rounded-xl font-bold bg-white text-blue-800 border-2 border-blue-100 shadow-sm transition-all hover:bg-blue-50";
-                btn.textContent = cat;
-                btn.onclick = () => handleMainMenuClick(cat);
+                btn.textContent = currentLang === 'he' ? cat : worldData[cat].en;
                 btn.id = `main-${cat}`;
+                btn.onclick = () => handleMainMenuClick(cat);
                 mainMenu.appendChild(btn);
             });
-            document.getElementById('quiz-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAnswer(); });
+            handleMainMenuClick(Object.keys(worldData)[0]);
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'he' ? 'en' : 'he';
+            const html = document.getElementById('main-html');
+            html.dir = currentLang === 'he' ? 'rtl' : 'ltr';
+            document.getElementById('lang-toggle-text').textContent = currentLang === 'he' ? 'English' : 'עברית';
+            init();
+        }
+
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('header-main').textContent = t.title;
+            document.getElementById('header-sub').textContent = t.subtitle;
+            document.getElementById('alert-title').textContent = t.shlomiSays;
+            document.getElementById('alert-btn-text').textContent = t.ok;
+            document.getElementById('quiz-select-title').textContent = t.selectQuiz;
+            document.getElementById('btn-quiz-cap').textContent = t.capQuiz;
+            document.getElementById('btn-quiz-count').textContent = t.countQuiz;
+            document.getElementById('btn-quiz-cancel').textContent = t.cancel;
+            document.getElementById('stat-total').textContent = t.total;
+            document.getElementById('stat-success').textContent = t.success;
+            document.getElementById('stat-fail').textContent = t.fail;
+            document.getElementById('stat-time').textContent = t.time;
+            document.getElementById('best-score-text').textContent = t.best;
+            document.getElementById('btn-check').textContent = t.check;
+            document.getElementById('btn-hint').textContent = t.hint;
+            document.getElementById('btn-end').textContent = t.end;
+            document.getElementById('btn-reset-score').textContent = t.reset;
+            document.getElementById('btn-all-world').textContent = t.allWorld;
+            document.getElementById('quiz-input').placeholder = t.placeholder;
+            document.getElementById('text-cap-label').textContent = t.capLabel;
+            document.getElementById('btn-start-test').textContent = t.startTest;
             updateHighScoreDisplay();
-            handleMainMenuClick("אירופה");
-        }
-
-        function showCustomAlert(message, nextTask = null) {
-            document.getElementById('custom-alert-message').textContent = message;
-            document.getElementById('custom-alert-overlay').style.display = 'flex';
-            window.pendingTask = nextTask;
-        }
-
-        function closeCustomAlert() {
-            document.getElementById('custom-alert-overlay').style.display = 'none';
-            if (window.pendingTask) {
-                window.pendingTask();
-                window.pendingTask = null;
-            }
-        }
-
-        function startTimer() {
-            stopTimer();
-            startTime = Date.now();
-            timerInterval = setInterval(() => {
-                const delta = Date.now() - startTime;
-                const m = Math.floor(delta / 60000).toString().padStart(2, '0');
-                const s = Math.floor((delta % 60000) / 1000).toString().padStart(2, '0');
-                document.getElementById('quiz-timer').textContent = `${m}:${s}`;
-            }, 1000);
-        }
-
-        function stopTimer() { if (timerInterval) clearInterval(timerInterval); }
-
-        function getAllCountries() {
-            let all = [];
-            Object.values(worldData).forEach(cat => {
-                if (cat.m) all = all.concat(cat.m);
-                if (cat.sub) { Object.values(cat.sub).forEach(subList => all = all.concat(subList)); }
-            });
-            return all;
         }
 
         function handleAllWorldClick() {
-            document.querySelectorAll('#main-menu button').forEach(b => b.classList.remove('active-btn'));
-            document.getElementById('main-all').classList.add('active-btn');
+            document.querySelectorAll('#main-menu-container button').forEach(b => b.classList.remove('active-btn'));
+            document.getElementById('btn-all-world').classList.add('active-btn');
             document.getElementById('sub-menu-container').classList.add('hidden');
-            currentActiveList = getAllCountries();
-            displayCountries(currentActiveList, "כל העולם");
+            let all = [];
+            Object.values(worldData).forEach(cat => {
+                if (cat.m) all = all.concat(cat.m);
+                if (cat.sub) {
+                    Object.values(cat.sub).forEach(subCat => all = all.concat(subCat.m));
+                }
+            });
+            currentActiveList = all;
+            displayCountries(currentActiveList, translations[currentLang].allWorld);
         }
 
         function handleMainMenuClick(name) {
-            document.querySelectorAll('#main-menu button').forEach(b => b.classList.remove('active-btn'));
-            const targetBtn = document.getElementById(`main-${name}`);
-            if(targetBtn) targetBtn.classList.add('active-btn');
+            document.querySelectorAll('#main-menu-container button').forEach(b => b.classList.remove('active-btn'));
+            const btn = document.getElementById(`main-${name}`);
+            if(btn) btn.classList.add('active-btn');
             const data = worldData[name];
             const subContainer = document.getElementById('sub-menu-container');
             if (data.sub) {
                 subContainer.classList.remove('hidden'); subContainer.innerHTML = '';
                 Object.keys(data.sub).forEach(subName => {
                     const sBtn = document.createElement('button');
-                    sBtn.className = "px-3 py-1 rounded-lg font-bold bg-white border-2 border-blue-100 text-xs transition-all sub-btn hover:bg-blue-50";
-                    sBtn.textContent = subName;
+                    sBtn.className = "px-3 py-1 rounded-lg font-bold bg-white border-2 border-blue-100 text-xs transition-all hover:bg-blue-50";
+                    sBtn.textContent = currentLang === 'he' ? subName : data.sub[subName].en;
                     sBtn.onclick = () => {
-                        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active-btn'));
-                        sBtn.classList.add('active-btn'); 
-                        currentActiveList = data.sub[subName];
-                        displayCountries(currentActiveList, subName);
+                        currentActiveList = data.sub[subName].m;
+                        displayCountries(currentActiveList, sBtn.textContent);
                     };
                     subContainer.appendChild(sBtn);
                 });
                 subContainer.firstChild.click();
             } else {
-                subContainer.classList.add('hidden'); currentActiveList = data.m;
-                displayCountries(currentActiveList, name);
+                subContainer.classList.add('hidden');
+                currentActiveList = data.m;
+                displayCountries(currentActiveList, currentLang === 'he' ? name : data.en);
             }
         }
 
         function displayCountries(list, title) {
             document.getElementById('current-title').textContent = title;
             const grid = document.getElementById('countries-grid'); grid.innerHTML = '';
-            const sorted = [...list].sort((a,b) => a.n.localeCompare(b.n, 'he'));
-            sorted.forEach(item => {
+            list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "country-card p-4 rounded-2xl shadow-sm text-center font-bold text-gray-700";
-                card.textContent = item.n;
-                card.onclick = () => { showCountry(item); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+                card.className = "country-card p-4 rounded-2xl shadow-sm text-center";
+                card.textContent = currentLang === 'he' ? item.n : item.ne;
+                card.onclick = () => showCountry(item);
                 grid.appendChild(card);
             });
-            document.getElementById('country-count').textContent = `${list.length} מדינות`;
+            document.getElementById('country-count').textContent = `${list.length} ${translations[currentLang].countries}`;
         }
 
         function showCountry(item) {
-            document.getElementById('display-country').textContent = item.n;
-            document.getElementById('display-capital').textContent = item.c;
-            const mC = document.getElementById('map-link-country');
-            const mCap = document.getElementById('map-link-capital');
-            mC.classList.remove('hidden'); mCap.classList.remove('hidden');
-            mC.href = `https://www.google.com/maps/search/${encodeURIComponent(item.n)}`;
-            mCap.href = `https://www.google.com/maps/search/${encodeURIComponent(item.c + ", " + item.n)}`;
+            document.getElementById('display-country').textContent = currentLang === 'he' ? item.n : item.ne;
+            document.getElementById('display-capital').textContent = currentLang === 'he' ? item.c : item.ce;
         }
 
-        function startSpecificQuiz(type) {
-            currentQuizType = type; stats = { total: 0, success: 0, fail: 0 };
-            updateScoreUI(); closeTypeOverlay(); generateQuestion(); startTimer();
+        function startSpecificQuiz(t) {
+            currentQuizType = t; stats = {total:0, success:0, fail:0}; updateScoreUI();
+            closeTypeOverlay(); generateQuestion(); startTimer();
             document.getElementById('quiz-overlay').style.display = 'flex';
         }
 
         function generateQuestion() {
             const random = currentActiveList[Math.floor(Math.random() * currentActiveList.length)];
-            const qStr = currentQuizType === 'capital' ? `מה עיר הבירה של ${random.n}?` : `${random.c} היא הבירה של...`;
-            document.getElementById('quiz-question').textContent = qStr;
-            currentQuizAnswer = currentQuizType === 'capital' ? random.c : random.n;
+            const t = translations[currentLang];
+            const countryName = currentLang === 'he' ? random.n : random.ne;
+            const capName = currentLang === 'he' ? random.c : random.ce;
+
+            if (currentQuizType === 'capital') {
+                document.getElementById('quiz-question').textContent = t.qCap + countryName + "?";
+                currentQuizAnswer = capName;
+            } else {
+                document.getElementById('quiz-question').textContent = capName + t.qCount;
+                currentQuizAnswer = countryName;
+            }
             hintCount = 0; document.getElementById('quiz-input').value = ""; document.getElementById('quiz-input').focus();
         }
 
         function giveHint() {
             if (hintCount < currentQuizAnswer.length) {
-                hintCount++; document.getElementById('quiz-input').value = currentQuizAnswer.substring(0, hintCount);
+                hintCount++; 
+                document.getElementById('quiz-input').value = currentQuizAnswer.substring(0, hintCount);
             }
         }
 
         function checkAnswer() {
             const input = document.getElementById('quiz-input').value.trim();
-            if (input === "") return;
-            if (input === currentQuizAnswer) {
+            const t = translations[currentLang];
+            if (input.toLowerCase() === currentQuizAnswer.toLowerCase()) {
                 stats.total++;
                 if (hintCount === currentQuizAnswer.length) {
-                    stats.fail++; 
-                    showCustomAlert("הפעם גילינו לכם... נסו לזכור זאת לפעם הבאה! 💪", () => { updateScoreUI(); generateQuestion(); });
+                    stats.fail++; showCustomAlert(t.hintMsg, () => { updateScoreUI(); generateQuestion(); });
                 } else {
-                    stats.success++; checkAndSaveHighScore(); playSuccessSound(); 
-                    showCustomAlert("כל הכבוד לכם! תשובה נכונה מאוד! 🏆", () => { updateScoreUI(); generateQuestion(); });
+                    stats.success++; checkAndSaveHighScore(); playSuccessSound();
+                    showCustomAlert(t.correctMsg, () => { updateScoreUI(); generateQuestion(); });
                 }
-            } else { showCustomAlert("לא בדיוק, נסו שוב בבקשה!"); }
+            } else { showCustomAlert(t.wrongMsg); }
         }
 
+        function showCustomAlert(m, f) { document.getElementById('custom-alert-message').textContent = m; document.getElementById('custom-alert-overlay').style.display = 'flex'; window.pendingTask = f; }
+        function closeCustomAlert() { document.getElementById('custom-alert-overlay').style.display = 'none'; if(window.pendingTask) { window.pendingTask(); window.pendingTask = null; } }
+        function startTimer() { startTime = Date.now(); timerInterval = setInterval(() => { const d = Date.now()-startTime; const m = Math.floor(d/60000).toString().padStart(2,'0'); const s = Math.floor((d%60000)/1000).toString().padStart(2,'0'); document.getElementById('quiz-timer').textContent = `${m}:${s}`; }, 1000); }
+        function stopTimer() { clearInterval(timerInterval); }
         function openTypeOverlay() { document.getElementById('quiz-type-overlay').style.display = 'flex'; }
         function closeTypeOverlay() { document.getElementById('quiz-type-overlay').style.display = 'none'; }
         function closeQuiz() { stopTimer(); document.getElementById('quiz-overlay').style.display = 'none'; }
-        function updateScoreUI() {
-            document.getElementById('count-total').textContent = stats.total;
-            document.getElementById('count-success').textContent = stats.success;
-            document.getElementById('count-fail').textContent = stats.fail;
-        }
-        function updateHighScoreDisplay() { document.getElementById('high-score-display').textContent = localStorage.getItem('worldAppHighScore') || 0; }
-        function checkAndSaveHighScore() {
-            const current = parseInt(localStorage.getItem('worldAppHighScore') || 0);
-            if (stats.success > current) { localStorage.setItem('worldAppHighScore', stats.success); updateHighScoreDisplay(); }
-        }
-        function resetHighScore() { if(confirm("לאפס שיא?")) { localStorage.setItem('worldAppHighScore', 0); updateHighScoreDisplay(); } }
-        
-        function playSuccessSound() {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
-                osc.connect(g); g.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
-                g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-            } catch(e) {}
-        }
+        function updateScoreUI() { document.getElementById('count-total').textContent = stats.total; document.getElementById('count-success').textContent = stats.success; document.getElementById('count-fail').textContent = stats.fail; }
+        function updateHighScoreDisplay() { document.getElementById('high-score-display').textContent = localStorage.getItem('score_'+currentLang) || 0; }
+        function checkAndSaveHighScore() { const s = parseInt(localStorage.getItem('score_'+currentLang) || 0); if(stats.success > s) { localStorage.setItem('score_'+currentLang, stats.success); updateHighScoreDisplay(); } }
+        function resetHighScore() { if(confirm(translations[currentLang].confirmReset)) { localStorage.setItem('score_'+currentLang, 0); updateHighScoreDisplay(); } }
+        function playSuccessSound() { try { if(!audioCtx) audioCtx = new AudioContext(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.setValueAtTime(523, audioCtx.currentTime); o.start(); o.stop(audioCtx.currentTime+0.2); } catch(e) {} }
 
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>
